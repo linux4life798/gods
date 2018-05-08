@@ -10,7 +10,7 @@ import (
 	"github.com/linux4life798/testutils"
 )
 
-func TestHashSetRW(numgoroutines int, reads, writes, updates bool, readvals, writevals []int32, c safetyfast.AtomicContext) time.Duration {
+func TestHashMapRW(numgoroutines int, reads, writes, updates bool, readvals, writevals []int32, c safetyfast.AtomicContext) time.Duration {
 	var multiplier int = 0
 	if reads {
 		multiplier++
@@ -110,28 +110,28 @@ func TestHashMap(fileprefix string) {
 	series = "NoMutex"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines; count++ {
-		dur := TestHashSetRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.NoMutex)))
+		dur := TestHashMapRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.NoMutex)))
 		pl.AddMetric(series, int64(count), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "SystemLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines; count++ {
-		dur := TestHashSetRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "HLESpinLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines; count++ {
-		dur := TestHashSetRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
+		dur := TestHashMapRW(count, true, false, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
 		pl.AddMetric(series, int64(count), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "RTM"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines; count++ {
-		dur := TestHashSetRW(count, true, false, false, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, false, false, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count), dur/time.Duration(nreads))
 	}
 
@@ -147,21 +147,21 @@ func TestHashMap(fileprefix string) {
 	series = "SystemLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, false, true, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, false, true, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "HLESpinLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, false, true, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
+		dur := TestHashMapRW(count, true, false, true, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "RTM"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, false, true, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, false, true, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 
@@ -177,21 +177,21 @@ func TestHashMap(fileprefix string) {
 	series = "SystemLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, true, false, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, true, false, readvals, writevals, safetyfast.NewLockedContext(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "HLESpinLock"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, true, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
+		dur := TestHashMapRW(count, true, true, false, readvals, writevals, safetyfast.NewLockedContext(new(safetyfast.SpinHLEMutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 	runtime.GC()
 	series = "RTM"
 	fmt.Println("# Running experiment", series)
 	for count := 1; count <= maxgoroutines/2; count++ {
-		dur := TestHashSetRW(count, true, true, false, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
+		dur := TestHashMapRW(count, true, true, false, readvals, writevals, safetyfast.NewRTMContex(new(sync.Mutex)))
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 
