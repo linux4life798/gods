@@ -30,7 +30,7 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 	t := avltree.NewWith(utils.Int32Comparator)
 	for i := range readvals {
 		// m[readvals[i]] = 0
-		t.Put(readvals[i], 0)
+		t.Put(readvals[i], int32(0))
 	}
 	var wg sync.WaitGroup
 
@@ -38,7 +38,7 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 		for _, v := range writevals {
 			c.Atomic(func() {
 				// m[v] = 0
-				t.Put(v, 0)
+				t.Put(v, int32(0))
 			})
 		}
 		wg.Done()
@@ -105,8 +105,8 @@ func TestAVLTree(fileprefix string) {
 	var series string
 	var title string
 
-	const nreads = 3000000
-	const nwrites = 3000000
+	const nreads = 300000
+	const nwrites = 300000
 	readvals := testutils.NewRandValues().AddSparseInt32(nreads).GetAllInt32()
 	writevals := testutils.NewRandValues().AddSparseInt32(nwrites).GetAllInt32()
 
