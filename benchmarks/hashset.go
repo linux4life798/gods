@@ -6,13 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/emirpasic/gods/trees/avltree"
-	"github.com/emirpasic/gods/utils"
 	"github.com/linux4life798/safetyfast"
 	"github.com/linux4life798/testutils"
 )
 
-func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, writevals []int32, c safetyfast.AtomicContext) time.Duration {
+func TestHashSetRW(numgoroutines int, reads, writes, updates bool, readvals, writevals []int32, c safetyfast.AtomicContext) time.Duration {
 	var multiplier int = 0
 	if reads {
 		multiplier++
@@ -26,19 +24,16 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 
 	fmt.Printf("# Starting: GoRoutines=%d | reads=%v | writes=%v | updates=%v\n", numgoroutines*multiplier, reads, writes, updates)
 
-	// m := make(map[int32]int32)
-	t := avltree.NewWith(utils.Int32Comparator)
+	m := make(map[int32]int32)
 	for i := range readvals {
-		// m[readvals[i]] = 0
-		t.Put(readvals[i], 0)
+		m[readvals[i]] = 0
 	}
 	var wg sync.WaitGroup
 
 	writerroutine := func() {
 		for _, v := range writevals {
 			c.Atomic(func() {
-				// m[v] = 0
-				t.Put(v, 0)
+				m[v] = 0
 			})
 		}
 		wg.Done()
@@ -47,7 +42,7 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 	readerroutine := func() {
 		for _, v := range readvals {
 			c.Atomic(func() {
-				if _, ok := t.Get(v); !ok {
+				if _, ok := m[v]; !ok {
 					panic("Element doesn't exist")
 				}
 			})
@@ -58,11 +53,11 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 	updaterrroutine := func() {
 		for _, v := range readvals {
 			c.Atomic(func() {
-				val, ok := t.Get(v)
+				val, ok := m[v]
 				if !ok {
 					panic("Element doesn't exist")
 				}
-				t.Put(v, (val.(int32) + 1))
+				m[v] = val + 1
 			})
 		}
 		wg.Done()
@@ -96,7 +91,7 @@ func TestAVLTreeRW(numgoroutines int, reads, writes, updates bool, readvals, wri
 	return dur
 }
 
-func TestAVLTree(fileprefix string) {
+func TestHashMap(fileprefix string) {
 
 	maxgoroutines := runtime.GOMAXPROCS(-1)
 
@@ -140,8 +135,8 @@ func TestAVLTree(fileprefix string) {
 		pl.AddMetric(series, int64(count), dur/time.Duration(nreads))
 	}
 
-	filename = fileprefix + "avl-reads.svg"
-	title = fmt.Sprintf("AVL %d-Read Performance", nreads)
+	filename = fileprefix + "maps-reads.svg"
+	title = fmt.Sprintf("Map %d-Read Performance", nreads)
 	pl.Plot(filename, "Number of Goroutines", "Duration (ns)", title, false, true)
 	testutils.OpenPlot(filename)
 
@@ -170,8 +165,8 @@ func TestAVLTree(fileprefix string) {
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 
-	filename = fileprefix + "avl-reads-updates.svg"
-	title = fmt.Sprintf("AVL %d-Read/%d-Update Performance", nreads, nreads)
+	filename = fileprefix + "maps-reads-updates.svg"
+	title = fmt.Sprintf("Map %d-Read/%d-Update Performance", nreads, nreads)
 	pl.Plot(filename, "Number of Goroutines", "Duration (ns)", title, false, true)
 	testutils.OpenPlot(filename)
 
@@ -200,8 +195,8 @@ func TestAVLTree(fileprefix string) {
 		pl.AddMetric(series, int64(count*2), dur/time.Duration(nreads))
 	}
 
-	filename = fileprefix + "avl-reads-puts.svg"
-	title = fmt.Sprintf("AVL %d-Read/%d-Put Performance", nreads, nwrites)
+	filename = fileprefix + "maps-reads-puts.svg"
+	title = fmt.Sprintf("Map %d-Read/%d-Put Performance", nreads, nwrites)
 	pl.Plot(filename, "Number of Goroutines", "Duration (ns)", title, false, true)
 	testutils.OpenPlot(filename)
 }
