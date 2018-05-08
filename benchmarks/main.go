@@ -340,12 +340,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// TestAVL("avl")
-	// TestHashSet()
 
 	TestHashMap(FlagFilePrefix)
 
 	TestAVLTree(FlagFilePrefix)
-
-	// TestAVLTree()
 }
